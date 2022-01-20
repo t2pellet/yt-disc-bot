@@ -1,16 +1,16 @@
 const {SlashCommandBuilder} = require("@discordjs/builders");
-const { skip, isEmpty } = require('../player.js')
+const { skip, isEmpty, isPlaying, isPaused } = require('../player.js')
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("skip")
         .setDescription("Skip the current video"),
     async execute(interaction) {
-        if (isEmpty()) {
-            await interaction.reply('Nothing to skip')
+        if (isEmpty() && !isPlaying() && !isPaused()) {
+            await interaction.editReply('Nothing to skip')
         } else {
             skip();
-            await interaction.reply(`Skipped the current video`)
+            await interaction.editReply(`Skipped the current video`)
         }
     }
 }

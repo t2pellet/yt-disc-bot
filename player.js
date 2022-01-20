@@ -10,9 +10,7 @@ class Entry {
     }
 
     async init() {
-        let stream = await ytdl(this.url, {type: "opus", filter: "audioonly"});
-
-        this.resource = await createAudioResource(stream, {seek: 0, volume: 1});
+        this.stream = await ytdl(this.url, {type: "opus", filter: "audioonly"});
         this.info = (await ytdl.getBasicInfo(this.url, {downloadURL: true})).videoDetails;
     }
 }
@@ -65,7 +63,7 @@ exports.isPlaying = function() {
 }
 
 exports.isEmpty = function() {
-    return queue.length == 0;
+    return queue.length === 0;
 }
 
 exports.listAll = function() {
@@ -73,13 +71,13 @@ exports.listAll = function() {
 }
 
 // Auto play next on idle
-player.on(AudioPlayerStatus.Idle, () => {
-    playNext();
+player.on(AudioPlayerStatus.Idle, async () => {
+    await playNext();
 })
 
-function playNext() {
+async function playNext() {
     if (queue.length > 0) {
-        player.play(queue.shift().resource);
+        player.play(createAudioResource(queue.shift().stream, {seek: 0, volume: 1}));
     }
 }
 

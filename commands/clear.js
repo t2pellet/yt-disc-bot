@@ -7,6 +7,6 @@ module.exports = {
         .setDescription("Clear all videos"),
     async execute(interaction) {
         clear();
-        await interaction.reply(`Cleared videos`)
+        await interaction.editReply(`Cleared videos`)
     }
 }

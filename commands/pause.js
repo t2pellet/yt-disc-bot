@@ -8,9 +8,9 @@ module.exports = {
     async execute(interaction) {
         if (!isPaused()) {
             pause();
-            await interaction.reply('Paused the video')
+            await interaction.editReply('Paused the video')
         } else {
-            await interaction.reply('No video to pause')
+            await interaction.editReply('No video to pause')
         }
     }
 }

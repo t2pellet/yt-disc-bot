@@ -22,10 +22,11 @@ client.on('interactionCreate', async interaction => {
     if (!command) return;
 
     try {
+        await interaction.deferReply();
         await command.execute(interaction)
     } catch (error) {
         console.error(error);
-        await interaction.reply("There was an error executing this command");
+        await interaction.editReply("There was an error executing this command");
     }
 })
 

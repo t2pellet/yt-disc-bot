@@ -17,6 +17,6 @@ module.exports = {
         let embed = new MessageEmbed()
             .setTitle("Current Queue")
             .setDescription(description);
-        await interaction.reply({embeds: [embed]})
+        await interaction.editReply({embeds: [embed]})
     }
 }
