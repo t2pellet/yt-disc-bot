@@ -1,7 +1,7 @@
 const { MessageEmbed } = require('discord.js')
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { join, play, resume, isPaused, isPlaying } = require('../player.js')
-const { getInfo } = require('ytdl-core')
+const { getInfo } = require('ytdl-core-discord')
 const { search } = require('youtube-search-without-api-key')
 
 module.exports = {

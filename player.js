@@ -1,5 +1,5 @@
 const { createAudioPlayer, createAudioResource, VoiceConnectionStatus, joinVoiceChannel, AudioPlayerStatus} = require('@discordjs/voice');
-const ytdl = require('ytdl-core')
+const ytdl = require('ytdl-core-discord')
 
 const player = createAudioPlayer();
 const queue = [];
@@ -10,7 +10,8 @@ class Entry {
     }
 
     async init() {
-        let stream = await ytdl(this.url, {filter: "audioonly"});
+        let stream = await ytdl(this.url, {type: "opus", filter: "audioonly"});
+
         this.resource = await createAudioResource(stream, {seek: 0, volume: 1});
         this.info = (await ytdl.getBasicInfo(this.url, {downloadURL: true})).videoDetails;
     }
