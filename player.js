@@ -63,6 +63,10 @@ exports.isPlaying = function() {
     return player.state.status === AudioPlayerStatus.Playing;
 }
 
+exports.isEmpty = function() {
+    return queue.length == 0;
+}
+
 exports.listAll = function() {
     return queue.map(entry => entry.info);
 }
@@ -74,7 +78,7 @@ player.on(AudioPlayerStatus.Idle, () => {
 
 function playNext() {
     if (queue.length > 0) {
-        player.play(createAudioResource(queue.shift().resource, {seek: 0, volume: 1}));
+        player.play(queue.shift().resource);
     }
 }
 

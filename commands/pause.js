@@ -6,9 +6,9 @@ module.exports = {
         .setName("pause")
         .setDescription("Pause current video"),
     async execute(interaction) {
-        if (isPaused()) {
+        if (!isPaused()) {
             pause();
-            await interaction.reply('Stopped playing the video')
+            await interaction.reply('Paused the video')
         } else {
             await interaction.reply('No video to pause')
         }
