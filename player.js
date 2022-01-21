@@ -1,8 +1,10 @@
-const { createAudioPlayer, createAudioResource, VoiceConnectionStatus, joinVoiceChannel, AudioPlayerStatus} = require('@discordjs/voice');
+const { createAudioPlayer, createAudioResource, VoiceConnectionStatus, joinVoiceChannel, AudioPlayerStatus, AudioPlayer} = require('@discordjs/voice');
 const ytdl = require('ytdl-core-discord')
 
 const player = createAudioPlayer();
 const queue = [];
+var playing = null;
+var connection = null;
 
 class Entry {
     constructor(url) {
@@ -10,13 +12,16 @@ class Entry {
     }
 
     async init() {
-        this.stream = await ytdl(this.url, {type: "opus", filter: "audioonly"});
         this.info = (await ytdl.getBasicInfo(this.url, {downloadURL: true})).videoDetails;
+    }
+
+    async encode() {
+        return await ytdl(this.url, {type: "opus", filter: "audioonly"});
     }
 }
 
 exports.join = async function(channelId, guildId, adapterCreator) {
-    let connection = await joinVoiceChannel({
+    connection = await joinVoiceChannel({
         channelId: channelId,
         guildId: guildId,
         adapterCreator: adapterCreator
@@ -31,9 +36,7 @@ exports.play = async function(url) {
     let entry = new Entry(url);
     await entry.init();
     queue.push(entry);
-    if (queue.length === 1 && player.state.status === AudioPlayerStatus.Idle) {
-        playNext();
-    }
+    return entry.info;
 }
 
 exports.resume = function() {
@@ -55,7 +58,7 @@ exports.clear = function() {
 }
 
 exports.isPaused = function() {
-    return player.state.status === AudioPlayerStatus.Paused;
+    return player.state.status === AudioPlayerStatus.Paused || player.state.status == AudioPlayerStatus.AutoPaused;
 }
 
 exports.isPlaying = function() {
@@ -66,18 +69,42 @@ exports.isEmpty = function() {
     return queue.length === 0;
 }
 
-exports.listAll = function() {
+exports.getQueue = function() {
     return queue.map(entry => entry.info);
 }
 
+exports.current = function() {
+    return playing;
+}
+
+// Auto play on initial subscription
+player.addListener('subscribe', async subscription => {
+    if (player.state.status === AudioPlayerStatus.Paused) {
+        player.unpause();
+    } else if (queue.length > 0) {
+        await playNext();
+    }
+})
+
+// Auto pause on unsubscription
+player.addListener('unsubscribe', async subscription => {
+    player.pause();
+})
+
 // Auto play next on idle
 player.on(AudioPlayerStatus.Idle, async () => {
+    playing = null;
     await playNext();
 })
 
 async function playNext() {
     if (queue.length > 0) {
-        player.play(createAudioResource(queue.shift().stream, {seek: 0, volume: 1}));
+        let current = queue.shift();
+        playing = current.info;
+        let stream = await current.encode();
+        await player.play(createAudioResource(stream, {seek: 0, volume: 1}));
+    } else {
+        await connection.destroy();
     }
 }
 

@@ -23,8 +23,6 @@ module.exports = {
             await interaction.editReply("You gotta be in a voice channel bruh");
             return;
         }
-        // Join channel
-        await join(interaction.member.voice.channel.id, interaction.member.guild.id, interaction.guild.voiceAdapterCreator);
         // Search if by name
         if (name != null) {
             let results = await search(name);
@@ -32,15 +30,17 @@ module.exports = {
         }
         if (url != null) {
             // Play video
-            await play(url);
+            let info = await play(url);
             // Send feedback
             let title = isPaused() || isPlaying() ? "Queued Video" : "Playing Video";
-            let desc = (await getInfo(url, {downloadURL: true})).videoDetails.title;
+            let desc = `**${info.title}**\n${info.author.name}\n`;
             const embed = new MessageEmbed()
                 .setTitle(title)
                 .setDescription(desc)
                 .setURL(url);
             await interaction.editReply({ embeds: [embed] });
+            // Join channel
+            await join(interaction.member.voice.channel.id, interaction.member.guild.id, interaction.guild.voiceAdapterCreator);
         } else {
             if (isPaused()) {
                 await resume();
