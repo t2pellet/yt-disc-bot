@@ -1,6 +1,6 @@
 // Requires
 const {Client, Intents} = require('discord.js')
-const config = require("./config.json")
+const {token} = require("./config.json")
 const commands = require("./commands.js")
 
 // Setup client
@@ -30,4 +30,4 @@ client.on('interactionCreate', async interaction => {
     }
 })
 
-client.login(config.token);
+client.login(token);
