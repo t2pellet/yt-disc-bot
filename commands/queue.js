@@ -1,5 +1,5 @@
 const {SlashCommandBuilder} = require("@discordjs/builders");
-const { listAll } = require('../player.js')
+const { getQueue, current } = require('../player.js')
 const {MessageEmbed} = require("discord.js");
 
 module.exports = {
@@ -7,16 +7,31 @@ module.exports = {
         .setName("queue")
         .setDescription("Show current queue"),
     async execute(interaction) {
-        let results = listAll();
+        let currSong = current();
+        let queue = getQueue();
 
-        let description = '';
-        results.forEach(result => {
-            description += result.title + '\n';
-        })
+        if (currSong == null) {
+            await interaction.editReply("There is nothing playing")
+            return;
+        }
 
-        let embed = new MessageEmbed()
-            .setTitle("Current Queue")
-            .setDescription(description);
-        await interaction.editReply({embeds: [embed]})
+        let embeds = [];
+        embeds.push(
+            new MessageEmbed()
+            .setTitle("Currently Playing")
+            .setDescription(`**${currSong.title}**\n${currSong.ownerChannelName}`));
+
+        if (queue.length != 0) {
+            let description = '';
+            queue.forEach(result => {
+                description += `**${result.title}**\n\t${result.ownerChannelName}\n\n`;
+            })
+            embeds.push(
+                new MessageEmbed()
+                    .setTitle("Current Queue")
+                    .setDescription(description));
+        }
+
+        await interaction.editReply({embeds: embeds})
     }
 }
